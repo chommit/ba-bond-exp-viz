@@ -4,6 +4,8 @@ from typing import List
 import random
 from fastapi.middleware.cors import CORSMiddleware
 
+from compute import compute_exp_per_month
+
 app = FastAPI()
 
 app.add_middleware(
@@ -40,3 +42,6 @@ def compute(req: ComputeRequest):
         "total_exp": total,
         "components": components
     }
+
+def compute_craft_exp(student_gift_exp_vec):
+

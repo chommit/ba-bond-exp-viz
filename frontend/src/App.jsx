@@ -41,7 +41,7 @@ export default function App() {
     <div style={{ padding: 30 }}>
       <h1>EXP per Month Simulator</h1>
 
-      <h3>Add Nice+ Gifts</h3>
+      <h3>Add Preferred Gifts</h3>
       <select onChange={e => {
         const gift = GIFTS.find(g => g.id === Number(e.target.value))
         if (gift) addGift(gift)

@@ -1,7 +1,7 @@
 export const GIFTS = [
   { id: 1, name: "Wavecat Pillow" },
   { id: 2, name: "Peroro Wheel" },
-  { id: 3, name: "A-Airpods Pro" },
+  { id: 3, name: "A- Airpods Pro" },
   { id: 4, name: "Forbidden Love" },
   { id: 5, name: "Hitgirls Gaming Magazine" },
   { id: 6, name: "Cherry-Rose Lip Gloss" },
