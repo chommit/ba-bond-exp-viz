@@ -24,14 +24,14 @@ class ComputeRequest(BaseModel):
 
 def compute_exp_per_month(gift_vector):
     # Replace with your real function
-    components = [random.randint(800, 2200) for _ in range(12)]
+    components = [random.randint(800, 2200) for _ in range(6)]
     return components
 
 @app.post("/compute")
 def compute(req: ComputeRequest):
     gift_vector = [0] * 48
     for g in req.gifts:
-        gift_vector[g.gift_id] = g.value
+        gift_vector[g.gift_id - 1] = g.value
 
     components = compute_exp_per_month(gift_vector)
     total = sum(components)
