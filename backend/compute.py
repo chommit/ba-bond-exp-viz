@@ -145,10 +145,10 @@ def best_yellow_gift_exp(req):
   return best_yellow_exp
 
 # Return [[comp1, comp1exp], [comp2, comp2exp], ..., [compN, compNexp], ["Total EXP", total_exp]]
-def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
-    crafting_monthlies=False, gift_monthlies=False,
+def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=8.5,
+    crafting_monthlies=True, gift_monthlies=False,
     num_red_bouquet_packs_per_year=0, eligma_mini_keystones=True,
-    frr_tryhard = False, extra_exp_per_month=0, number_trials=5000):
+    frr_tryhard = False, extra_exp_per_month=0, number_trials=12):
   # ^ frr tryhard means f99+ every month, not means f75 every month
   # actually for frr tryhard stat, pick value between [0, 1=true, 2] to choose your tryhard level
 

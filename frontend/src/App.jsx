@@ -29,6 +29,9 @@ export default function App() {
       g.gift_id === gift_id ? { ...g, value } : g
     ))
   }
+  const removeGift = (gift_id) => {
+    setSelectedGifts(selectedGifts.filter(g => g.gift_id !== gift_id))
+  }
 
   const runCompute = async () => {
     const res = await axios.post("http://localhost:8000/compute", {
@@ -53,8 +56,17 @@ export default function App() {
       </select>
 
       {selectedGifts.map(g => (
-        <div key={g.gift_id}>
-          {g.name}
+        <div
+          key={g.gift_id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            marginBottom: "6px"
+          }}
+        >
+          <span style={{ minWidth: "150px" }}>{g.name}</span>
+
           <select
             value={g.value}
             onChange={e => updateValue(g.gift_id, Number(e.target.value))}
@@ -63,6 +75,20 @@ export default function App() {
             <option value={2}>Great</option>
             <option value={3}>Amazing</option>
           </select>
+
+          <button
+            onClick={() => removeGift(g.gift_id)}
+            style={{
+              backgroundColor: "#ff4d4d",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              padding: "1px 4px"
+            }}
+          >
+            ✕
+          </button>
         </div>
       ))}
 
