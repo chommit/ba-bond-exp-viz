@@ -26,8 +26,9 @@ class ComputeRequest(BaseModel):
 
 def compute_exp_per_month(gift_vector):
     # Replace with your real function
-    components = [random.randint(800, 2200) for _ in range(6)]
-    return components
+    components_exp = [0 for _ in range(6)]
+    component_names = ["", "", "", "", "", ""]
+    return components_exp
 
 @app.post("/compute")
 def compute(req: ComputeRequest):

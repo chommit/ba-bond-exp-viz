@@ -35,10 +35,6 @@ n3_map = {1: 36.19, 2: 9.98, 3: 9.05, 4: 6.03, 5: 5.34, 6: 1.39, 7: 1.86, 8: 9.2
               9: 12.53, 10: 0.70, 11: 0.23, 12: 0.23, 13: 0.65, 14: 0.65, 15: 0.65, 16: 0.65,
               17: 0.65, 18: 0.65, 19: 0.65, 20: 0.65, 21: 0.65, 22: 0.65, 23: 0.65}
 
-# print(sum(n1_map.values()))
-# print(sum(n2_map.values()))
-# print(sum(n3_map.values()))
-
 # gift indices for node 2's specialized flower nodes
 n2_flower_index = {44: [1, 15], 45: [2, 17], 46: [3, 12], 47: [4, 5, 10, 16, 33, 24], 48: [6, 7, 8],
 49: [9, 13, 14, 27], 50: [11, 19, 21, 23, 26], 51: [18, 20, 30, 31], 52: [22, 28],
@@ -121,10 +117,6 @@ def get_sorted_n2_vec(student_gift_exp_vec):
     return n2_vec_map[gift_node] @ student_gift_exp_vec
   return sorted(n2_prio, key=n2_gift_nodes_exp_count, reverse=True)
 
-
-num_trials = 10000
-total_exp = 0
-
 def compute_average_craft_exp(student_gift_pref, number_of_trials):
   student_gift_exp_vec = convert_gift_pref_to_exp_vec(student_gift_pref)
   # anti pattern. Okay
@@ -160,13 +152,17 @@ def best_yellow_gift_exp(student_gift_pref):
       best_yellow_exp = max(yellow_pref_conversion[g.value], best_yellow_exp)
   return best_yellow_exp
 
-def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
+# Return dictionary with all relevant bond exp components per month
+# Also return dict has total exp per month
+def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
     crafting_monthlies=False, gift_monthlies=False,
     num_red_bouquet_packs_per_year=0, eligma_mini_keystones=True,
-    frr_tryhard = False, extra_exp_per_month=0,
-    log_exp_sources = False, number_trials=5000):
+    frr_tryhard = False, extra_exp_per_month=0, number_trials=5000):
   # ^ frr tryhard means f99+ every month, not means f75 every month
   # actually for frr tryhard stat, pick value between [0, 1=true, 2] to choose your tryhard level
+
+  component_exp = dict()
+  component_name = ["Headpats", "F2P Crafting", "Lessons", "Event Shop Gifts", "GA/TA Gifts", "FRR Gifts"]
   keystone_per_week = 17
   keystone_per_day = keystone_per_week/7
   average_num_days_per_month = 30.44
@@ -179,6 +175,7 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
   total_assault_gift_exp = 2 * favorite_yellow_gift_exp # assuming maxed out TA rewards
   grand_assault_gift_exp = 3 * favorite_yellow_gift_exp + avg_purple_gift_exp # maxed GA
   average_crafting_exp = compute_average_craft_exp(student_gift_pref, number_trials)
+  bonus_exp_due_to_yellow_gift_minus_two_yellow = max(favorite_yellow_gift_exp - 40, 0)
 
   monthly_yellow_gifts_from_event_shop = 81.8
   monthly_purple_gifts_from_event_shop = 4.6
@@ -187,53 +184,37 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
   march 26 2025 (start of jp shupo event) to nov 19 2025 (end of jp kisaki rerun event)
   which tallied a total of 64 * 10 yellow gifts and 36 purple gifts from event shops
   """
+
   total_monthly_exp = 0
-  total_monthly_exp += max(favorite_yellow_gift_exp - 40, 0) * num_yellow_keystones_per_month
-  total_monthly_exp += num_daily_headpats * 15 * average_num_days_per_month
-  total_monthly_exp += (keystone_per_day * average_num_days_per_month
-                        * average_crafting_exp)
-  total_monthly_exp += average_daily_lessons_exp * average_num_days_per_month
-  total_monthly_exp += (monthly_yellow_gifts_from_event_shop * avg_yellow_gift_exp
+  component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
+  component_exp["F2P Crafting"] = (keystone_per_day * average_num_days_per_month * average_crafting_exp 
+                       + 10 * average_crafting_exp * eligma_mini_keystones)
+  component_exp["Lessons"] = average_daily_lessons_exp * average_num_days_per_month
+  component_exp["Event Shop Gifts"] = (monthly_yellow_gifts_from_event_shop * avg_yellow_gift_exp
                         + monthly_purple_gifts_from_event_shop * avg_purple_gift_exp)
-  total_monthly_exp += (total_assault_gift_exp + grand_assault_gift_exp)
-  total_monthly_exp += (4 * favorite_yellow_gift_exp + avg_purple_gift_exp
+  component_exp["GA/TA Gifts"] = total_assault_gift_exp + grand_assault_gift_exp
+  component_exp["FRR Gifts"] = (4 * favorite_yellow_gift_exp + avg_purple_gift_exp
                         + frr_tryhard * (2 * favorite_yellow_gift_exp +
                           2 * avg_purple_gift_exp))
-  total_monthly_exp += 10 * average_crafting_exp * eligma_mini_keystones
-  total_monthly_exp += 1500 * num_red_bouquet_packs_per_year / 12
-  total_monthly_exp += crafting_monthlies * (10 * average_crafting_exp +
-                        15 * favorite_yellow_gift_exp)
-  total_monthly_exp += gift_monthlies * (5 * favorite_yellow_gift_exp +
-                        10 * avg_yellow_gift_exp + avg_purple_gift_exp)
-  total_monthly_exp += extra_exp_per_month # misc promotions/apology free gifts
+  
+  if (bonus_exp_due_to_yellow_gift_minus_two_yellow > 0):
+    component_exp["Extra EXP From F2P Yellow Giftbox Crafting"] = (bonus_exp_due_to_yellow_gift_minus_two_yellow 
+                       * num_yellow_keystones_per_month)
+  if (num_red_bouquet_packs_per_year > 0):
+    component_exp["Red Bouquet Packs"] = 1500 * num_red_bouquet_packs_per_year / 12
+  if (crafting_monthlies):
+    component_exp["Crafting Monthly Pack"] = (10 * average_crafting_exp + 15 * favorite_yellow_gift_exp)
+  if (gift_monthlies):
+    component_exp["Gift Monthly Pack"] = (5 * favorite_yellow_gift_exp +
+                          10 * avg_yellow_gift_exp + avg_purple_gift_exp)
+  if (extra_exp_per_month > 0):
+    component_exp["Misc EXP Per Month"] = extra_exp_per_month
 
-  if log_exp_sources:
-    print("Exp due to yellow keystones / gift box bonus: "
-          + str((favorite_yellow_gift_exp - 40)
-          * num_yellow_keystones_per_month))
-    print("Exp due to headpats: " +
-          str(num_daily_headpats * 15 * average_num_days_per_month))
-    print("Exp due to gift crafting with keystones: " +
-          str(keystone_per_day * average_num_days_per_month
-            * average_crafting_exp))
-    print("Exp due to lessons: " + str(average_daily_lessons_exp
-            * average_num_days_per_month))
-    print("Exp due to event shop gifts: " +
-          str(monthly_yellow_gifts_from_event_shop * avg_yellow_gift_exp
-          + monthly_purple_gifts_from_event_shop * avg_purple_gift_exp))
-    print("Exp due to TA/GA gifts: " + str(total_assault_gift_exp
-            + grand_assault_gift_exp))
-    print("Exp due to FRR: " + str(4 * favorite_yellow_gift_exp + avg_purple_gift_exp
-          + frr_tryhard * (2 * favorite_yellow_gift_exp + 2 * avg_purple_gift_exp)))
-    print("Exp due to eligma shop ministone crafting: "
-          + str(10 * average_crafting_exp * eligma_mini_keystones))
-    print("Exp due to red bouquet packs: " + str(1500 * num_red_bouquet_packs_per_year / 12))
-    print("Exp due to crafting pack monthlies: " + str(crafting_monthlies
-          * (10 * average_crafting_exp + 15 * favorite_yellow_gift_exp)))
-    print("Exp due to gift pack monthlies: " + str(gift_monthlies
-           * (5 * favorite_yellow_gift_exp + 10 * avg_yellow_gift_exp
-              + avg_purple_gift_exp)))
-    print("Exp due to misc promotions/apology free gifts: " + str(extra_exp_per_month))
+  for k, v in component_exp.items():
+    total_monthly_exp += v
+
+  component_exp["Total EXP"] = total_monthly_exp
+  
 
   return math.floor(total_monthly_exp)
 
@@ -285,7 +266,7 @@ mecha_aris_favorite_gifts = {"game of life": "A", "hairbrush": "G", "gameboy": "
 
 bond_exp_per_month = compute_bond_exp_per_month(shiroko_kuroko_favorite_gifts,
           num_daily_headpats=8.5, crafting_monthlies=True,
-          frr_tryhard=0.25, num_red_bouquet_packs_per_year=4, log_exp_sources=True)
+          frr_tryhard=0.25, num_red_bouquet_packs_per_year=4)
 
 print("Average exp per month: " + str(bond_exp_per_month))
 print("Expected time to reach bond 100: "
