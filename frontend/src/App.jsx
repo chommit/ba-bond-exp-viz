@@ -97,7 +97,7 @@ export default function App() {
 
       {result && (
         <>
-          <h2>Total EXP: {result.total_exp[1]}</h2>
+          <h2>Total EXP: {Math.trunc(result.total_exp[1])}</h2>
 
           <BarChart width={500} height={80} data={[
             { name: "EXP", value: result.total_exp[1] }
@@ -110,7 +110,7 @@ export default function App() {
             <Pie
               data={result.components.map((v, i) => ({
                 name: `${v[0]}`,
-                value: v[1]
+                value: Math.trunc(v[1])
               }))}
               dataKey="value"
               cx="50%"
