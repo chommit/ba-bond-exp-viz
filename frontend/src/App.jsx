@@ -20,7 +20,7 @@ export default function App() {
     setSelectedGifts([...selectedGifts, {
       gift_id: gift.id,
       name: gift.name,
-      value: 1
+      value: (gift.grade === "yellow") ? 1 : 2
     }])
   }
 
