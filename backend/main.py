@@ -4,7 +4,7 @@ from typing import List
 import random
 from fastapi.middleware.cors import CORSMiddleware
 
-from compute import compute_exp_per_month
+from compute import compute_bond_exp_per_month
 
 app = FastAPI()
 
@@ -31,17 +31,11 @@ def compute_exp_per_month(gift_vector):
 
 @app.post("/compute")
 def compute(req: ComputeRequest):
-    gift_vector = [0] * 48
-    for g in req.gifts:
-        gift_vector[g.gift_id - 1] = g.value
-
-    components = compute_exp_per_month(gift_vector)
+    components = compute_bond_exp_per_month(req)
     total = sum(components)
 
     return {
         "total_exp": total,
         "components": components
     }
-
-def compute_craft_exp(student_gift_exp_vec):
 

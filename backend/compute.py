@@ -116,18 +116,6 @@ reverse_gift_code_list = {"wavecat": 1, "peroro wheel": 2, "airpods": 3, "forbid
 "macbook": 41, "hairbrush": 42, "gummies": 43, "bonsai": 44, "sew kit": 45, "concert ticket": 46,
 "dumbbell": 47, "game of life": 48}
 
-def convert_gift_pref_to_exp_vec(gift_pref):
-  exp_vec = v_yellow_one_hot * 20 + v_purple_one_hot * 120 # baseline exp vec
-  yellow_pref_conversion = {"N": 20, "G": 40, "A": 60}
-  purple_pref_conversion = {"G": 60, "A": 120}
-  for gift, pref in gift_pref.items():
-    gift_idx = reverse_gift_code_list[gift] # 1 indexed so watch out
-    if gift_idx <= num_yellow_gifts:
-      exp_vec[gift_idx-1] += yellow_pref_conversion[pref]
-    else:
-      exp_vec[gift_idx-1] += purple_pref_conversion[pref]
-  return exp_vec
-
 def get_sorted_n2_vec(student_gift_exp_vec):
   def n2_gift_nodes_exp_count(gift_node):
     return n2_vec_map[gift_node] @ student_gift_exp_vec
@@ -149,14 +137,27 @@ def compute_average_craft_exp(student_gift_pref, number_of_trials):
   avg_exp = total_exp/number_of_trials
   return math.floor(avg_exp * 100)/100.0
 
+def convert_gift_pref_to_exp_vec(student_gift_pref):
+  # gift pref is dictionary of {{gift_id (1's idx), value [1, 3]},...}
+  exp_vec = v_yellow_one_hot * 20 + v_purple_one_hot * 120 # baseline exp vec
+  yellow_pref_conversion = {1: 20, 2: 40, 3: 60}
+  purple_pref_conversion = {1: 0, 2: 60, 3: 120}
+  for g in student_gift_pref:
+    gift_idx = g.gift_id # 1 indexed so watch out
+    pref = g.value
+    if gift_idx <= num_yellow_gifts:
+      exp_vec[gift_idx-1] += yellow_pref_conversion[pref]
+    else:
+      exp_vec[gift_idx-1] += purple_pref_conversion[pref]
+  return exp_vec
+
 
 def best_yellow_gift_exp(student_gift_pref):
   best_yellow_exp = 20
-  for gift, pref in student_gift_pref.items():
-    yellow_pref_conversion = {"N": 40, "G": 60, "A": 80}
-    gift_idx = reverse_gift_code_list[gift] # 1 indexed so watch out
-    if gift_idx <= num_yellow_gifts:
-      best_yellow_exp = max(yellow_pref_conversion[pref], best_yellow_exp)
+  for g in student_gift_pref:
+    yellow_pref_conversion = {1: 40, 2: 60, 3: 80}
+    if g.gift_id <= num_yellow_gifts:
+      best_yellow_exp = max(yellow_pref_conversion[g.value], best_yellow_exp)
   return best_yellow_exp
 
 def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
@@ -170,19 +171,17 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
   keystone_per_day = keystone_per_week/7
   average_num_days_per_month = 30.44
   num_yellow_keystones_per_month = 70
-  average_daily_lessons_exp = 40 # this is a complete guess, I need to measure the actual stats
+  average_daily_lessons_exp = 30 # this is a complete guess, I need to measure the actual stats
   favorite_yellow_gift_exp = best_yellow_gift_exp(student_gift_pref)
-  #print(favorite_yellow_gift_exp)
-  monthly_yellow_gifts_from_event_shop = 81.8
-  monthly_purple_gifts_from_event_shop = 4.6
   student_exp_vec = convert_gift_pref_to_exp_vec(student_gift_pref)
   avg_yellow_gift_exp = v_yellow @ student_exp_vec
-  #print(str(avg_yellow_gift_exp))
   avg_purple_gift_exp = v_purple @ student_exp_vec
-  #print(str(avg_purple_gift_exp))
   total_assault_gift_exp = 2 * favorite_yellow_gift_exp # assuming maxed out TA rewards
   grand_assault_gift_exp = 3 * favorite_yellow_gift_exp + avg_purple_gift_exp # maxed GA
   average_crafting_exp = compute_average_craft_exp(student_gift_pref, number_trials)
+
+  monthly_yellow_gifts_from_event_shop = 81.8
+  monthly_purple_gifts_from_event_shop = 4.6
   """
   these above values were calculated by tallying up total number of gifts from
   march 26 2025 (start of jp shupo event) to nov 19 2025 (end of jp kisaki rerun event)
