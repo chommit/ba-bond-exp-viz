@@ -20,7 +20,8 @@ export default function App() {
     setSelectedGifts([...selectedGifts, {
       gift_id: gift.id,
       name: gift.name,
-      value: (gift.grade === "yellow") ? 1 : 2
+      value: (gift.grade === "yellow") ? 1 : 2,
+      grade: gift.grade
     }])
   }
 
@@ -71,7 +72,9 @@ export default function App() {
             value={g.value}
             onChange={e => updateValue(g.gift_id, Number(e.target.value))}
           >
-            <option value={1}>Nice</option>
+            {g.grade === "yellow" && (
+              <option value={1}>Nice</option>
+            )}
             <option value={2}>Great</option>
             <option value={3}>Amazing</option>
           </select>
