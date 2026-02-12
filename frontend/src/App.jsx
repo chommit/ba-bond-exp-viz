@@ -3,7 +3,7 @@ import axios from "axios"
 import { GIFTS } from "./gifts"
 import {
   PieChart, Pie, Cell, Tooltip,
-  BarChart, Bar, XAxis
+  BarChart, Bar, XAxis, YAxis
 } from "recharts"
 
 const COLORS = [
@@ -102,11 +102,15 @@ export default function App() {
         <>
           <h2>Total EXP: {Math.trunc(result.total_exp[1])}</h2>
 
-          <BarChart width={500} height={80} data={[
-            { name: "EXP", value: result.total_exp[1] }
-          ]}>
+          <BarChart
+            width={500}
+            height={80}
+            data={[{ name: "EXP", value: result.total_exp[1] }]}
+            layout="vertical"
+          >
             <XAxis type="number" domain={[0, 24000]} />
-            <Bar dataKey="value" />
+            <YAxis type="category" dataKey="name" hide />
+            <Bar dataKey="value" fill="#8884d8" />
           </BarChart>
 
           <PieChart width={400} height={400}>
