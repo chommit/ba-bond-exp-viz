@@ -101,16 +101,6 @@ def compute_craft_exp(student_gift_exp_vec):
         break
   return expected_gifts @ student_gift_exp_vec
 
-reverse_gift_code_list = {"wavecat": 1, "peroro wheel": 2, "airpods": 3, "forbidden love": 4,
-"hitgirls": 5, "lipgloss": 6, "cream": 7, "camo": 8, "cookies": 9, "guns germs steel": 10,
-"telescope": 11, "gameboy": 12, "ration": 13, "ramune": 14, "jellies cushion": 15,
-"detective novel": 16, "ring fit": 17, "treasure map": 18, "swirly eye glasses": 19,
-"useless gadget": 20, "teddy": 21, "movie ticket": 22, "color paints": 23, "poetry book": 24,
-"dishes": 25, "rubiks cube": 26, "cake": 27, "buffet ticket": 28, "venus flytrap": 29,
-"jar of greed": 30, "music box": 31, "handkerchief": 32, "encyclopedia": 33, "health pills": 34,
-"float tube": 35, "pillow": 36, "sukeban": 37, "samuela": 38, "egg antique": 39, "parfait": 40,
-"macbook": 41, "hairbrush": 42, "gummies": 43, "bonsai": 44, "sew kit": 45, "concert ticket": 46,
-"dumbbell": 47, "game of life": 48}
 
 def get_sorted_n2_vec(student_gift_exp_vec):
   def n2_gift_nodes_exp_count(gift_node):
@@ -162,7 +152,7 @@ def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
   # actually for frr tryhard stat, pick value between [0, 1=true, 2] to choose your tryhard level
 
   component_exp = dict()
-  component_name = ["Headpats", "F2P Crafting", "Lessons", "Event Shop Gifts", "GA/TA Gifts", "FRR Gifts"]
+
   keystone_per_week = 17
   keystone_per_day = keystone_per_week/7
   average_num_days_per_month = 30.44
@@ -185,7 +175,6 @@ def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
   which tallied a total of 64 * 10 yellow gifts and 36 purple gifts from event shops
   """
 
-  total_monthly_exp = 0
   component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
   component_exp["F2P Crafting"] = (keystone_per_day * average_num_days_per_month * average_crafting_exp 
                        + 10 * average_crafting_exp * eligma_mini_keystones)
@@ -210,64 +199,23 @@ def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
   if (extra_exp_per_month > 0):
     component_exp["Misc EXP Per Month"] = extra_exp_per_month
 
+
+  total_monthly_exp = 0
   for k, v in component_exp.items():
     total_monthly_exp += v
 
   component_exp["Total EXP"] = total_monthly_exp
-  
 
-  return math.floor(total_monthly_exp)
+  return component_exp
 
 
 def expected_num_months_to_complete_bond_100(bond_exp_per_month_value, current_bond_exp=0):
   exp_left = 240000 - current_bond_exp
   return math.floor(exp_left/bond_exp_per_month_value * 1000) / 1000.0
 
-
-"""
-LIST OF ALL GIFT NAMES USED IN PROGRAM FOR REFERENCE:
-
-1 - wavecat, 2 - peroro wheel, 3 - airpods, 4 - forbidden love, 5 - hitgirls,
-6 - lipgloss, 7 - cream, 8 - camo, 9 - cookies, 10 - guns germs steel,
-11 - telescope, 12 - gameboy, 13 - ration, 14 - ramune,
-15 - jellies cushion, 16 - detective novel, 17 - ring fit,
-18 - treasure map, 19 - swirly eye glasses, 20 - useless gadget,
-21 - teddy, 22 - movie ticket, 23 - color paints, 24 - poetry book,
-25 - dishes, 26 - rubiks cube, 27 - cake, 28 - buffet ticket,
-29 - venus flytrap, 30 - jar of greed, 31 - music box,
-32 - handkerchief, 33 - encyclopedia, 34 - health pills,
-35 - float tube, 36 - pillow, 37 - sukeban, 38 - samuela,
-39 - egg antique, 40 - parfait, 41 - macbook, 42 - hairbrush,
-43 - gummies, 44 - bonsai, 45 - sew kit, 46 - concert ticket,
-47 - dumbbell, 48 - game of life
-"""
-
-"""
-N - Nice gift (40/120 exp), G - Great gift (60/180 exp), A - Amazing gift (80/240 exp)
-"""
-
-"""
-Follow the template below to use your own student's gift preferences:
-"""
-
-ibuki_favorite_gifts = {"cake": "N", "rubiks cube": "N", "swirly eye glasses": "N",
-"ramune": "N", "ration": "N", "telescope": "N", "color paints": "G", "teddy": "G",
-"cookies": "G", "game of life": "A", "parfait": "A"}
-
-miku_favorite_gifts = {}
-
-shiroko_kuroko_favorite_gifts = {"ring fit": "N", "peroro wheel": "G", "dumbbell": "G"}
-ako_favorite_gifts = {"egg antique": "G", "health pills": "G", "treasure map": "N",
-                      "useless gadget": "N", "jar of greed": "N", "music box": "N",
-                      "encyclopedia": "N"}
-mecha_aris_favorite_gifts = {"game of life": "A", "hairbrush": "G", "gameboy": "G", "hitgirls": "N",
-                             "telescope": "N", "ring fit": "N", "swirly eye glasses": "N", "teddy": "N",
-                             "color paints": "N", "rubiks cube": "N", "handkerchief": "N"}
-
-bond_exp_per_month = compute_bond_exp_per_month(shiroko_kuroko_favorite_gifts,
-          num_daily_headpats=8.5, crafting_monthlies=True,
-          frr_tryhard=0.25, num_red_bouquet_packs_per_year=4)
-
-print("Average exp per month: " + str(bond_exp_per_month))
-print("Expected time to reach bond 100: "
-      + str(expected_num_months_to_complete_bond_100(bond_exp_per_month, 210000)))
+def zipper(map):
+  # Convert kv map to [[k, v], ...] type array
+  zipper_arr = []
+  for k, v in map.items():
+    zipper_arr.append([k, v])
+  return zipper_arr
