@@ -119,8 +119,9 @@ def compute_average_craft_exp(student_gift_pref, number_of_trials):
   avg_exp = total_exp/number_of_trials
   return math.floor(avg_exp * 100)/100.0
 
-def convert_gift_pref_to_exp_vec(student_gift_pref):
+def convert_gift_pref_to_exp_vec(req):
   # gift pref is dictionary of {{gift_id (1's idx), value [1, 3]},...}
+  student_gift_pref = req.gifts # list of gifts
   exp_vec = v_yellow_one_hot * 20 + v_purple_one_hot * 120 # baseline exp vec
   yellow_pref_conversion = {1: 20, 2: 40, 3: 60}
   purple_pref_conversion = {1: 0, 2: 60, 3: 120}
@@ -134,7 +135,8 @@ def convert_gift_pref_to_exp_vec(student_gift_pref):
   return exp_vec
 
 
-def best_yellow_gift_exp(student_gift_pref):
+def best_yellow_gift_exp(req):
+  student_gift_pref = req.gifts # list of gifts
   best_yellow_exp = 20
   for g in student_gift_pref:
     yellow_pref_conversion = {1: 40, 2: 60, 3: 80}
@@ -142,9 +144,8 @@ def best_yellow_gift_exp(student_gift_pref):
       best_yellow_exp = max(yellow_pref_conversion[g.value], best_yellow_exp)
   return best_yellow_exp
 
-# Return dictionary with all relevant bond exp components per month
-# Also return dict has total exp per month
-def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
+# Return [[comp1, comp1exp], [comp2, comp2exp], ..., [compN, compNexp], ["Total EXP", total_exp]]
+def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=4,
     crafting_monthlies=False, gift_monthlies=False,
     num_red_bouquet_packs_per_year=0, eligma_mini_keystones=True,
     frr_tryhard = False, extra_exp_per_month=0, number_trials=5000):
@@ -206,7 +207,7 @@ def compute_bond_exp_per_month_comp(student_gift_pref, num_daily_headpats=4,
 
   component_exp["Total EXP"] = total_monthly_exp
 
-  return component_exp
+  return zipper(component_exp)
 
 
 def expected_num_months_to_complete_bond_100(bond_exp_per_month_value, current_bond_exp=0):

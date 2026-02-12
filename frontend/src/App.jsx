@@ -71,10 +71,10 @@ export default function App() {
 
       {result && (
         <>
-          <h2>Total EXP: {result.total_exp}</h2>
+          <h2>Total EXP: {result.total_exp[1]}</h2>
 
           <BarChart width={500} height={80} data={[
-            { name: "EXP", value: result.total_exp }
+            { name: "EXP", value: result.total_exp[1] }
           ]}>
             <XAxis type="number" domain={[0, 24000]} />
             <Bar dataKey="value" />
@@ -83,8 +83,8 @@ export default function App() {
           <PieChart width={400} height={400}>
             <Pie
               data={result.components.map((v, i) => ({
-                name: `Component ${i + 1}`,
-                value: v
+                name: `${v[0]}`,
+                value: v[1]
               }))}
               dataKey="value"
               cx="50%"
