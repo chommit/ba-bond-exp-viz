@@ -8,7 +8,10 @@ import {
 
 const COLORS = [
   "#8884d8", "#82ca9d", "#ffc658",
-  "#ff8042", "#8dd1e1"
+  "#ff8042", "#8dd1e1", 
+  "#d877a7ff", "#f3eda8ff", "#eeb2b2ff",
+  "#ab79c6ff", "#e57575ff"
+
 ]
 
 export default function App() {
@@ -200,7 +203,7 @@ export default function App() {
           >
             <XAxis type="number" domain={[0, 24000]} />
             <YAxis type="category" dataKey="name" hide />
-            <Bar dataKey="value" fill="#8884d8" />
+            <Bar dataKey="value" fill="#FFB5D3" />
           </BarChart>
 
           <h3>EXP Per Crafting Keystone: {Math.round(result.exp_per_craft[1] * 100) / 100}</h3>

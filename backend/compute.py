@@ -155,9 +155,12 @@ def compute_bond_exp_per_month(student_gift_prefs, num_daily_headpats=8.5,
   keystone_per_week = 17 # under only pure f2p
   keystone_per_day = keystone_per_week/7
   average_num_days_per_month = 30.44
+  '''
   number_trials = math.floor(keystone_per_day * average_num_days_per_month 
                    + eligma_mini_keystones * 10 
                    + crafting_monthlies * 10) * 12
+  '''
+  number_trials = 5000
   num_yellow_keystones_per_month = 70
   average_daily_lessons_exp = 30 # this is a complete guess, I need to measure the actual stats
   favorite_yellow_gift_exp = best_yellow_gift_exp(student_gift_prefs)
