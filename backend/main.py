@@ -21,17 +21,40 @@ class GiftInput(BaseModel):
     gift_id: int
     value: int  # 1=nice, 2=great, 3=amazing
 
+
+class Params(BaseModel):
+    dailyHeadpats: float
+    craftingMonthlies: bool
+    giftMonthlies: bool
+    eligmaMiniKeystones: bool
+    redBouquetPacks: int
+    frrTryhard: bool
+
+
 class ComputeRequest(BaseModel):
     gifts: List[GiftInput]
+    params: Params
+
 
 @app.post("/compute")
 def compute(req: ComputeRequest):
-    bond_exp_comp_arr = compute_bond_exp_per_month(req)
+    params = req.params
+    student_gift_prefs = req.gifts
+    bond_exp_comp_arr = compute_bond_exp_per_month(student_gift_prefs, 
+                                                   num_daily_headpats=params.dailyHeadpats,
+                                                   crafting_monthlies=params.craftingMonthlies,
+                                                   gift_monthlies=params.giftMonthlies,
+                                                   eligma_mini_keystones=params.eligmaMiniKeystones,
+                                                   frr_tryhard=params.frrTryhard,
+                                                   num_red_bouquet_packs_per_year=params.redBouquetPacks,
+                                                   number_trials=10000)
     total = bond_exp_comp_arr[-1]
-    bond_exp_comp_arr = bond_exp_comp_arr[:-1]
+    exp_per_craft = bond_exp_comp_arr[-2]
+    bond_exp_comp_arr = bond_exp_comp_arr[:-2]
 
     return {
         "total_exp": total,
-        "components": bond_exp_comp_arr
+        "components": bond_exp_comp_arr,
+        "exp_per_craft": exp_per_craft
     }
 

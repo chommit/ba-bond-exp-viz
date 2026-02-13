@@ -107,8 +107,8 @@ def get_sorted_n2_vec(student_gift_exp_vec):
     return n2_vec_map[gift_node] @ student_gift_exp_vec
   return sorted(n2_prio, key=n2_gift_nodes_exp_count, reverse=True)
 
-def compute_average_craft_exp(student_gift_pref, number_of_trials):
-  student_gift_exp_vec = convert_gift_pref_to_exp_vec(student_gift_pref)
+def compute_average_craft_exp(student_gift_prefs, number_of_trials):
+  student_gift_exp_vec = convert_gift_pref_to_exp_vec(student_gift_prefs)
   # anti pattern. Okay
   n2_prio_sorted = get_sorted_n2_vec(student_gift_exp_vec)
   node_i_prio_dict[1] = n2_prio_sorted
@@ -119,13 +119,12 @@ def compute_average_craft_exp(student_gift_pref, number_of_trials):
   avg_exp = total_exp/number_of_trials
   return math.floor(avg_exp * 100)/100.0
 
-def convert_gift_pref_to_exp_vec(req):
+def convert_gift_pref_to_exp_vec(student_gift_prefs):
   # gift pref is dictionary of {{gift_id (1's idx), value [1, 3]},...}
-  student_gift_pref = req.gifts # list of gifts
   exp_vec = v_yellow_one_hot * 20 + v_purple_one_hot * 120 # baseline exp vec
   yellow_pref_conversion = {1: 20, 2: 40, 3: 60}
   purple_pref_conversion = {1: 0, 2: 60, 3: 120}
-  for g in student_gift_pref:
+  for g in student_gift_prefs:
     gift_idx = g.gift_id # 1 indexed so watch out
     pref = g.value
     if gift_idx <= num_yellow_gifts:
@@ -135,17 +134,16 @@ def convert_gift_pref_to_exp_vec(req):
   return exp_vec
 
 
-def best_yellow_gift_exp(req):
-  student_gift_pref = req.gifts # list of gifts
+def best_yellow_gift_exp(student_gift_prefs):
   best_yellow_exp = 20
-  for g in student_gift_pref:
+  for g in student_gift_prefs:
     yellow_pref_conversion = {1: 40, 2: 60, 3: 80}
     if g.gift_id <= num_yellow_gifts:
       best_yellow_exp = max(yellow_pref_conversion[g.value], best_yellow_exp)
   return best_yellow_exp
 
 # Return [[comp1, comp1exp], [comp2, comp2exp], ..., [compN, compNexp], ["Total EXP", total_exp]]
-def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=8.5,
+def compute_bond_exp_per_month(student_gift_prefs, num_daily_headpats=8.5,
     crafting_monthlies=True, gift_monthlies=False,
     num_red_bouquet_packs_per_year=0, eligma_mini_keystones=True,
     frr_tryhard = False, extra_exp_per_month=0, number_trials=12):
@@ -159,13 +157,13 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=8.5,
   average_num_days_per_month = 30.44
   num_yellow_keystones_per_month = 70
   average_daily_lessons_exp = 30 # this is a complete guess, I need to measure the actual stats
-  favorite_yellow_gift_exp = best_yellow_gift_exp(student_gift_pref)
-  student_exp_vec = convert_gift_pref_to_exp_vec(student_gift_pref)
+  favorite_yellow_gift_exp = best_yellow_gift_exp(student_gift_prefs)
+  student_exp_vec = convert_gift_pref_to_exp_vec(student_gift_prefs)
   avg_yellow_gift_exp = v_yellow @ student_exp_vec
   avg_purple_gift_exp = v_purple @ student_exp_vec
   total_assault_gift_exp = 2 * favorite_yellow_gift_exp # assuming maxed out TA rewards
   grand_assault_gift_exp = 3 * favorite_yellow_gift_exp + avg_purple_gift_exp # maxed GA
-  average_crafting_exp = compute_average_craft_exp(student_gift_pref, number_trials)
+  average_crafting_exp = compute_average_craft_exp(student_gift_prefs, number_trials)
   bonus_exp_due_to_yellow_gift_minus_two_yellow = max(favorite_yellow_gift_exp - 40, 0)
 
   monthly_yellow_gifts_from_event_shop = 81.8
@@ -176,7 +174,6 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=8.5,
   which tallied a total of 64 * 10 yellow gifts and 36 purple gifts from event shops
   """
 
-  component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
   component_exp["F2P Crafting"] = (keystone_per_day * average_num_days_per_month * average_crafting_exp 
                        + 10 * average_crafting_exp * eligma_mini_keystones)
   component_exp["Lessons"] = average_daily_lessons_exp * average_num_days_per_month
@@ -199,12 +196,15 @@ def compute_bond_exp_per_month(student_gift_pref, num_daily_headpats=8.5,
                           10 * avg_yellow_gift_exp + avg_purple_gift_exp)
   if (extra_exp_per_month > 0):
     component_exp["Misc EXP Per Month"] = extra_exp_per_month
+  if (num_daily_headpats > 0):
+    component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
 
 
   total_monthly_exp = 0
   for k, v in component_exp.items():
     total_monthly_exp += v
 
+  component_exp["Average EXP Per Craft"] = average_crafting_exp
   component_exp["Total EXP"] = total_monthly_exp
 
   return zipper(component_exp)

@@ -12,8 +12,25 @@ const COLORS = [
 ]
 
 export default function App() {
+  const [params, setParams] = useState({
+    dailyHeadpats: 4,          // float 0–10
+    craftingMonthlies: false,
+    giftMonthlies: false,
+    eligmaMiniKeystones: true,
+    redBouquetPacks: 0,        // 0–24 int
+    frrTryhard: false,
+  });
   const [selectedGifts, setSelectedGifts] = useState([])
   const [result, setResult] = useState(null)
+
+  const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+
+    setParams(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : Number(value)
+    }));
+  };
 
   const addGift = (gift) => {
     if (selectedGifts.find(g => g.gift_id === gift.id)) return
@@ -36,7 +53,8 @@ export default function App() {
 
   const runCompute = async () => {
     const res = await axios.post("http://localhost:8000/compute", {
-      gifts: selectedGifts.map(({ gift_id, value }) => ({ gift_id, value }))
+      gifts: selectedGifts.map(({ gift_id, value }) => ({ gift_id, value })),
+      params: params
     })
     setResult(res.data)
   }
@@ -44,6 +62,78 @@ export default function App() {
   return (
     <div style={{ padding: 30 }}>
       <h1>EXP per Month Simulator</h1>
+
+    <h2>Parameters</h2>
+
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px" }}>
+
+      <label>
+        Daily Headpats: 
+        <input
+          type="number"
+          name="dailyHeadpats"
+          min="0"
+          max="10"
+          step="1"
+          value={params.dailyHeadpats}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Crafting Monthlies: 
+        <input
+          type="checkbox"
+          name="craftingMonthlies"
+          checked={params.craftingMonthlies}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Gift Monthlies: 
+        <input
+          type="checkbox"
+          name="giftMonthlies"
+          checked={params.giftMonthlies}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Eligma Shop Mini Keystones: 
+        <input
+          type="checkbox"
+          name="eligmaMiniKeystones"
+          checked={params.eligmaMiniKeystones}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Red Bouquet Packs per Year: 
+        <input
+          type="number"
+          name="redBouquetPacks"
+          min="0"
+          max="18"
+          step="1"
+          value={params.redBouquetPacks}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        FRR Tryhard: 
+        <input
+          type="checkbox"
+          name="frrTryhard"
+          checked={params.frrTryhard}
+          onChange={handleChange}
+        />
+      </label>
+
+    </div>
 
       <h3>Add Preferred Gifts</h3>
       <select onChange={e => {
@@ -112,6 +202,8 @@ export default function App() {
             <YAxis type="category" dataKey="name" hide />
             <Bar dataKey="value" fill="#8884d8" />
           </BarChart>
+
+          <h3>EXP Per Crafting Keystone: {Math.round(result.exp_per_craft[1] * 100) / 100}</h3>
 
           <PieChart width={400} height={400}>
             <Pie
