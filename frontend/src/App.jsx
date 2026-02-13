@@ -176,7 +176,7 @@ export default function App() {
             onClick={() => removeGift(g.gift_id)}
             style={{
               backgroundColor: "#ff4d4d",
-              color: "white",
+              color: "#DDDDDDDD",
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
