@@ -46,8 +46,7 @@ def compute(req: ComputeRequest):
                                                    gift_monthlies=params.giftMonthlies,
                                                    eligma_mini_keystones=params.eligmaMiniKeystones,
                                                    frr_tryhard=params.frrTryhard,
-                                                   num_red_bouquet_packs_per_year=params.redBouquetPacks,
-                                                   number_trials=10000)
+                                                   num_red_bouquet_packs_per_year=params.redBouquetPacks)
     total = bond_exp_comp_arr[-1]
     exp_per_craft = bond_exp_comp_arr[-2]
     bond_exp_comp_arr = bond_exp_comp_arr[:-2]

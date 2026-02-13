@@ -144,17 +144,20 @@ def best_yellow_gift_exp(student_gift_prefs):
 
 # Return [[comp1, comp1exp], [comp2, comp2exp], ..., [compN, compNexp], ["Total EXP", total_exp]]
 def compute_bond_exp_per_month(student_gift_prefs, num_daily_headpats=8.5,
-    crafting_monthlies=True, gift_monthlies=False,
+    crafting_monthlies=False, gift_monthlies=False,
     num_red_bouquet_packs_per_year=0, eligma_mini_keystones=True,
-    frr_tryhard = False, extra_exp_per_month=0, number_trials=12):
+    frr_tryhard = False):
   # ^ frr tryhard means f99+ every month, not means f75 every month
   # actually for frr tryhard stat, pick value between [0, 1=true, 2] to choose your tryhard level
 
   component_exp = dict()
 
-  keystone_per_week = 17
+  keystone_per_week = 17 # under only pure f2p
   keystone_per_day = keystone_per_week/7
   average_num_days_per_month = 30.44
+  number_trials = math.floor(keystone_per_day * average_num_days_per_month 
+                   + eligma_mini_keystones * 10 
+                   + crafting_monthlies * 10) * 12
   num_yellow_keystones_per_month = 70
   average_daily_lessons_exp = 30 # this is a complete guess, I need to measure the actual stats
   favorite_yellow_gift_exp = best_yellow_gift_exp(student_gift_prefs)
@@ -183,21 +186,15 @@ def compute_bond_exp_per_month(student_gift_prefs, num_daily_headpats=8.5,
   component_exp["FRR Gifts"] = (4 * favorite_yellow_gift_exp + avg_purple_gift_exp
                         + frr_tryhard * (2 * favorite_yellow_gift_exp +
                           2 * avg_purple_gift_exp))
-  
-  if (bonus_exp_due_to_yellow_gift_minus_two_yellow > 0):
-    component_exp["Extra EXP From F2P Yellow Giftbox Crafting"] = (bonus_exp_due_to_yellow_gift_minus_two_yellow 
+
+  component_exp["Extra EXP From F2P Yellow Giftbox Crafting"] = (bonus_exp_due_to_yellow_gift_minus_two_yellow 
                        * num_yellow_keystones_per_month)
-  if (num_red_bouquet_packs_per_year > 0):
-    component_exp["Red Bouquet Packs"] = 1500 * num_red_bouquet_packs_per_year / 12
-  if (crafting_monthlies):
-    component_exp["Crafting Monthly Pack"] = (10 * average_crafting_exp + 15 * favorite_yellow_gift_exp)
-  if (gift_monthlies):
-    component_exp["Gift Monthly Pack"] = (5 * favorite_yellow_gift_exp +
-                          10 * avg_yellow_gift_exp + avg_purple_gift_exp)
-  if (extra_exp_per_month > 0):
-    component_exp["Misc EXP Per Month"] = extra_exp_per_month
-  if (num_daily_headpats > 0):
-    component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
+  component_exp["Red Bouquet Packs"] = 1500 * num_red_bouquet_packs_per_year / 12
+  component_exp["Crafting Monthly Pack"] = ((10 * average_crafting_exp + 15 * favorite_yellow_gift_exp) 
+                                            * crafting_monthlies)
+  component_exp["Gift Monthly Pack"] = (5 * favorite_yellow_gift_exp +
+                          10 * avg_yellow_gift_exp + avg_purple_gift_exp) * gift_monthlies
+  component_exp["Headpats"] = num_daily_headpats * 15 * average_num_days_per_month
 
 
   total_monthly_exp = 0
