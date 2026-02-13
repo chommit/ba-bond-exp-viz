@@ -66,7 +66,7 @@ export default function App() {
     <div style={{ padding: 30 }}>
       <h1>BA EXP per Month Simulator</h1>
 
-    <h2>Parameters</h2>
+    <h2>Adjustables</h2>
 
     <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxWidth: "400px" }}>
 
