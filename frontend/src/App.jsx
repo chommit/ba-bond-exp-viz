@@ -7,10 +7,10 @@ import {
 } from "recharts"
 
 const COLORS = [
-  "#8884d8", "#82ca9d", "#ffc658",
+  "#827de5ff", "#82ca9d", "#ffc658",
   "#ff8042", "#8dd1e1", 
-  "#d877a7ff", "#f3eda8ff", "#eeb2b2ff",
-  "#ab79c6ff", "#e57575ff"
+  "#e78dc0ff", "#f3eda8ff", "#f77d7dff",
+  "#ab79c6ff", "#c7c7c7ff"
 
 ]
 
@@ -64,7 +64,7 @@ export default function App() {
 
   return (
     <div style={{ padding: 30 }}>
-      <h1>EXP per Month Simulator</h1>
+      <h1>BA EXP per Month Simulator</h1>
 
     <h2>Parameters</h2>
 
@@ -208,25 +208,45 @@ export default function App() {
 
           <h3>EXP Per Crafting Keystone: {Math.round(result.exp_per_craft[1] * 100) / 100}</h3>
 
-          <PieChart width={400} height={400}>
-            <Pie
-              data={result.components.map((v, i) => ({
-                name: `${v[0]}`,
-                value: Math.trunc(v[1])
-              }))}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              outerRadius={140}
-            >
-              {result.components.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </>
-      )}
+          <div style={{ display: "flex", alignItems: "center", gap: "40px" }}>
+                {/* Pie Chart */}
+                <PieChart width={400} height={400}>
+                  <Pie
+                    data={result.components.map((v, i) => ({
+                      name: `${v[0]}`,
+                      value: Math.trunc(v[1])
+                    }))}
+                    dataKey="value"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={140}
+                  >
+                    {result.components.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+
+                {/* Legend */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {result.components.map((comp, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          backgroundColor: COLORS[i % COLORS.length],
+                          borderRadius: "4px"
+                        }}
+                      />
+                      <span>{comp[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
     </div>
   )
 }
